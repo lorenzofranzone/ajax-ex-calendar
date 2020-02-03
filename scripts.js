@@ -1,26 +1,49 @@
 $(document).ready(function(){
 
   // Code
-  // January
-  var jan = moment('2018-01');
-  console.log(jan);
+  // Current Month
+  var thisMonth = moment('2018-01-01');
+  console.log(thisMonth);
+  $('.month-name').text(thisMonth.format('MMMM YYYY'));
 
-  // Days Number in month
-  var daysInJan = jan.daysInMonth();
-  console.log(daysInJan);
+
+  // Template list month
+  var source = $("#entry-template").html();
+  var template = Handlebars.compile(source);
+
+  for (var i = 0; i < 31; i++) {
+    // Current Y M D
+    var dayObj = {
+      year : thisMonth.year(),
+      month: thisMonth.month(),
+      day : i+1
+    }
+
+    // Current month
+    var thisDate = moment(dayObj);
+    var context = {
+      singleDay : thisDate.format('DD MMMM'),
+      'extended-date' : thisDate.format('YYYY-MM-DD')
+    };
+    var html = template(context);
+    $('ul').append(html);
+  }
+
+
 
   $.ajax({
     url: "https://flynn.boolean.careers/exercises/api/holidays?year=2018&month=0",
     method: "GET",
     // SUCCESS
     success: function (data) {
-      var source = $("#entry-template").html();
-      var template = Handlebars.compile(source);
-      for (var i = 1; i <= daysInJan; i++) {
-        var context = { body: i + ' Gennaio' };
-        var html = template(context);
-        $('ul').append(html);
-      }
+      holidays(data.response);
+
+        // ciclare tutti i giorni del mese
+
+        // verificare dall'API le chiavi "date"
+
+        // se presente una "date" appendere il valore della chiave "name"
+        // sul giorno corrispondente nell'html
     },
     // ERROR
     error: function (richiesta, stato, errori) {
@@ -35,7 +58,15 @@ $(document).ready(function(){
   // F U N C T I O N S
   //////////////////////////////////////////////////
 
-
+  // FX holidays
+  function holidays(monthHolydays) {
+    for (var i = 0; i < monthHolydays.length; i++) {
+      var holiday = monthHolydays[i];
+      var listItems = $('.month-day[data="'+holiday.date + '"]');
+      listItems.addClass('holiday');
+      listItems.text(listItems.text() + ' - ' + holiday.name);
+    }
+  }
 
 //////////
 });
