@@ -17,15 +17,15 @@
 <body>
 
   <h3 class="month-name"></h3>
-  <a href="#">Precedente</a>
-  <a href="#">Successivo</a>
+  <a href="#" id="prev">Precedente</a>
+  <a href="#" id="next">Successivo</a>
 
-  <ul>
+  <ul class="days">
   </ul>
 
   <!-- Template -->
   <script id="entry-template" type="text/x-handlebars-template">
-    <li class="month-day" data="{{extended-date}}">{{singleDay}}</li>
+    <li class="month-day" data="{{extended-date}}">{{day}} {{month}} <span class="holiday-name"></span></li>
   </script>
 
   <!-- Javascript -->

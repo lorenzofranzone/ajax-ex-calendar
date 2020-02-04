@@ -1,55 +1,17 @@
 $(document).ready(function(){
 
   // Code
-  // Current Month
-  var thisMonth = moment('2018-01-01');
-  console.log(thisMonth);
-  $('.month-name').text(thisMonth.format('MMMM YYYY'));
-
-
-  // Template list month
-  var source = $("#entry-template").html();
-  var template = Handlebars.compile(source);
-
-  for (var i = 0; i < 31; i++) {
-    // Current Y M D
-    var dayObj = {
-      year : thisMonth.year(),
-      month: thisMonth.month(),
-      day : i+1
+  var thisMonth = 0;
+  var year = 2018;
+  var baseMonth = moment(
+    {
+      year : year,
+      month : thisMonth
     }
+  );
 
-    // Current month
-    var thisDate = moment(dayObj);
-    var context = {
-      singleDay : thisDate.format('DD MMMM'),
-      'extended-date' : thisDate.format('YYYY-MM-DD')
-    };
-    var html = template(context);
-    $('ul').append(html);
-  }
-
-
-
-  $.ajax({
-    url: "https://flynn.boolean.careers/exercises/api/holidays?year=2018&month=0",
-    method: "GET",
-    // SUCCESS
-    success: function (data) {
-      holidays(data.response);
-
-        // ciclare tutti i giorni del mese
-
-        // verificare dall'API le chiavi "date"
-
-        // se presente una "date" appendere il valore della chiave "name"
-        // sul giorno corrispondente nell'html
-    },
-    // ERROR
-    error: function (richiesta, stato, errori) {
-      alert("E' avvenuto un errore. " + errore);
-    }
-  });
+  printMonth(baseMonth);
+  printHoliday(baseMonth);
 
 
 
@@ -58,15 +20,91 @@ $(document).ready(function(){
   // F U N C T I O N S
   //////////////////////////////////////////////////
 
-  // FX holidays
-  function holidays(monthHolydays) {
-    for (var i = 0; i < monthHolydays.length; i++) {
-      var holiday = monthHolydays[i];
-      var listItems = $('.month-day[data="'+holiday.date + '"]');
-      listItems.addClass('holiday');
-      listItems.text(listItems.text() + ' - ' + holiday.name);
+  // FX Add Zero
+  function addZero(num) {
+    if(num < 10) {
+      return '0' + num;
     }
-  }
+    return num;
+  } // FX Add Zero
+
+  // ------------------------------
+
+  // FX Print Month
+  function printMonth(month) {
+    // Reset month on change
+    $('.days').html('');
+    // Dynamic Month Name
+    $('.month-name').text(month.format('MMMM YYYY'));
+    $('.month-name').attr('data-this-month', month.format('YYYY-MM'));
+
+    // Days number in current Month
+    var daysInMonth = month.daysInMonth();
+
+    // Print all days in month "es. 1 January 2018"
+    for (var i = 1; i <= daysInMonth; i++) {
+      // Handlebars
+      var source = $('#entry-template').html();
+      var template = Handlebars.compile(source);
+      var context = {
+      day : i,
+      month : month.format('MMMM'),
+      'extended-date' : month.format('YYYY-MM') + '-' + addZero(i)
+      };
+      var html = template(context);
+      $('.days').append(html);
+    }
+  } // FX Print Month
+
+  // ------------------------------
+
+  // FX Print Holiday
+  function printHoliday(month) {
+    $.ajax({
+      url: 'https://flynn.boolean.careers/exercises/api/holidays',
+      method: 'GET',
+      data: {
+        year: month.year(),
+        month: month.month()
+        },
+      success: function(data) {
+        var holidays = data.response;
+        // Current Month holiday
+        for (var i = 0; i < holidays.length; i++) {
+          var thisHoliday = holidays[i];
+          var thisHolidayDate = thisHoliday.date;
+
+          // Check holiday in Month dates
+          $('li[data="' + thisHolidayDate + '"]').addClass('holiday');
+          $('li[data="' + thisHolidayDate + '"]').find('.holiday-name').append('- ' + thisHoliday.name);
+        }
+      }, // Success
+      error: function() {
+        alert('Errore!');
+      } // Error
+    }); // ajax
+  } // FX Print Holiday
+
+  // ------------------------------
+
+  // FX Click Prev
+  $('#prev').click(function() {
+    var thisMonth = $('.month-name').attr('data-this-month');
+    var date = moment(thisMonth).subtract(1, 'months');
+
+    printMonth(date);
+    printHoliday(date);
+  }) // FX Click Prev
+
+  // FX Click Next
+  $('#next').click(function() {
+    var thisMonth = $('.month-name').attr('data-this-month');
+    var date = moment(thisMonth).add(1, 'months');
+
+    printMonth(date);
+    printHoliday(date);
+  }) // FX Click Next
+
 
 //////////
 });
