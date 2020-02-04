@@ -90,19 +90,29 @@ $(document).ready(function(){
   // FX Click Prev
   $('#prev').click(function() {
     var thisMonth = $('.month-name').attr('data-this-month');
-    var date = moment(thisMonth).subtract(1, 'months');
 
-    printMonth(date);
-    printHoliday(date);
+    // Se il mese corrente è uguale a '2018-01' disabilita il click
+    if (thisMonth == '2018-01') {
+      $(this).click(false);
+    } else {
+      var date = moment(thisMonth).subtract(1, 'months');
+      printMonth(date);
+      printHoliday(date);
+    }
   }) // FX Click Prev
 
   // FX Click Next
   $('#next').click(function() {
     var thisMonth = $('.month-name').attr('data-this-month');
-    var date = moment(thisMonth).add(1, 'months');
 
-    printMonth(date);
-    printHoliday(date);
+    // Se il mese corrente è uguale a 11 del 2018 disabilità il click
+    if (thisMonth == '2018-12') {
+      $(this).click(false);
+    } else {
+      var date = moment(thisMonth).add(1, 'months');
+      printMonth(date);
+      printHoliday(date);
+    }
   }) // FX Click Next
 
 
